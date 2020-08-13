@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 const express = require('express');
 
 // amibiente
@@ -19,17 +18,17 @@ app = express();
 // Configuaracion Cors
 app.use(cors());
 
+// Lectura y parseo del body
+app.use(express.json());
+
 // Base de datos
 dbConnection();
 
 
 // Rutas
-app.get('/', (req, res) => {
-    res.status(400).json({
-        ok: 'true',
-        msg: 'Hola Mundo'
-    });
-});
+app.use('/api/usuarios', require('./routes/usuarios'));
+app.use('/api/login', require('./routes/auth'));
+
 
 
 
