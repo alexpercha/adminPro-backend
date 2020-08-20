@@ -2,6 +2,7 @@ const Usuario = require('../models/usuario');
 const { response } = require('express');
 const bcrypt = require('bcryptjs');
 const { generarToken } = require('../helpers/jwt');
+const { googleVerify } = require('../helpers/google-verify');
 
 const login = async(req, res = response) => {
 
@@ -43,12 +44,58 @@ const login = async(req, res = response) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({
-            ok: 'true',
+            ok: 'false',
             msg: 'hable con el admin'
         });
     }
 };
 
+const googleSignIn = async(req, res = response) => {
+
+    const googleToken = req.body.token;
+
+    try {
+
+        const { name, email, picture } = await googleVerify(googleToken);
+        let usuario;
+
+        const usuarioDB = await Usuario.findOne({ email });
+
+        if (!usuarioDB) {
+            //si no existe
+            usuario = new Usuario({
+                nombre: name,
+                email,
+                pass: '@@@',
+                img: picture,
+                google: true
+            });
+        } else {
+            // si existe
+            usuario = usuarioDB;
+            usuario.google = true;
+        }
+        // guardar base de datos
+        await usuario.save();
+        const token = await generarToken(usuario.id);
+
+        res.json({
+            ok: 'true',
+            token
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(401).json({
+            ok: 'false',
+            msg: 'Token no valido'
+        });
+
+    }
+
+};
+
 module.exports = {
-    login
+    login,
+    googleSignIn
 };
