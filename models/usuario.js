@@ -4,7 +4,7 @@ const { Schema, model } = require('mongoose');
 const UsuarioSchema = Schema({
     nombre: {
         type: String,
-        require: true
+        required: true
     },
     email: {
         type: String,
@@ -13,14 +13,14 @@ const UsuarioSchema = Schema({
     },
     pass: {
         type: String,
-        require: true
+        required: true
     },
     img: {
         type: String
     },
     role: {
         type: String,
-        require: true,
+        required: true,
         default: 'USER_ROLE'
     },
     google: {
