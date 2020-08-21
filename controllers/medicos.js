@@ -1,5 +1,6 @@
 const { response } = require('express');
 const Medico = require('../models/medico');
+const Hospital = require('../models/hospital');
 
 const getMedico = async(req, res = response) => {
 
@@ -38,20 +39,83 @@ const postMedico = async(req, res = response) => {
     }
 };
 
-const actualizarMedico = (req, res = response) => {
+const actualizarMedico = async(req, res = response) => {
 
-    res.json({
-        ok: 'true',
-        msg: 'actualizarMedicos'
-    });
+    const id = req.params.id;
+    const idHospital = req.params.hospital;
+    const uid = req.uid;
+
+    try {
+
+
+
+        const [medico, hospital] = await Promise.all([
+            await Medico.findById(id),
+            await Hospital.findById(idHospital)
+        ]);
+
+        if (!medico || !hospital) {
+            res.status(404).json({
+                ok: 'false',
+                msg: 'No existe medico o hospital'
+            });
+        }
+
+
+        const cambiosMedico = {
+            ...req.body,
+            usuario: uid,
+            hospital: idHospital
+        };
+
+        const medicoActualizado = await Medico.findByIdAndUpdate(id, cambiosMedico, { new: true });
+
+        res.json({
+            ok: 'true',
+            msg: 'Hospital actualizado',
+            medicoActualizado
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: 'false',
+            msg: 'Error inesperado'
+        });
+    }
+
 };
 
-const borrarMedico = (req, res = response) => {
+const borrarMedico = async(req, res = response) => {
 
-    res.json({
-        ok: 'true',
-        msg: 'borrarMedicos'
-    });
+    const id = req.params.id;
+
+    try {
+
+        const medico = await Medico.findById(id);
+
+        if (!medico) {
+            res.status(404).json({
+                ok: 'false',
+                msg: 'No existe medico'
+            });
+        }
+
+        const borrarmedico = await Medico.findByIdAndDelete(id);
+
+        res.json({
+            ok: 'true',
+            msg: 'Hospital eliminado',
+            borrarMedico
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: 'false',
+            msg: 'Error inesperado'
+        });
+    }
 };
 
 module.exports = {
