@@ -47,13 +47,13 @@ const getBusquedaColeccion = async(req, res = response) => {
     try {
 
         switch (tablaDb) {
-            case 'Usuarios':
+            case 'usuarios':
                 data = await Usuario.find({ nombre: regExp });
                 break;
-            case 'Hospitales':
+            case 'hospitales':
                 data = await Hospital.find({ nombre: regExp }).populate('usuario', 'nombre');
                 break;
-            case 'Medicos':
+            case 'medicos':
                 data = await Medico.find({ nombre: regExp })
                     .populate('usuario', 'nombre')
                     .populate('hospital', 'nombre');

@@ -16,9 +16,7 @@ router.put('/:tipo/:id', [
     validarJWT
 ], putUpload);
 
-router.get('/:tipo/:file', [
-    validarJWT
-], getUpload);
+router.get('/:tipo/:file', [], getUpload);
 
 
 

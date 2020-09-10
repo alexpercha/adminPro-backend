@@ -18,7 +18,7 @@ const getUsuarios = async(req, res) => {
         Usuario.countDocuments()
     ]);
 
-    res.status(400).json({
+    res.json({
         ok: 'true',
         usuarios,
         uid: req.uid,
@@ -54,7 +54,7 @@ const postUsuarios = async(req, res = response) => {
         // Generar el TOKEN - JWT
         const token = await generarToken(usuario.id);
 
-        res.status(400).json({
+        res.json({
             ok: 'true',
             usuario,
             token
@@ -86,6 +86,7 @@ const actualizarUsuario = async(req, res = response) => {
         // actualizar ususario
         const { pass, google, email, ...campos } = req.body;
 
+        console.log(usuarioDB.email, '    ', email);
         if (usuarioDB.email != email) {
 
             const existeEmail = await Usuario.findOne({ email });
@@ -97,7 +98,17 @@ const actualizarUsuario = async(req, res = response) => {
             }
         }
 
-        campos.email = email;
+
+        if (!usuarioDB.google) {
+            campos.email = email;
+        } else if (usuarioDB.email !== email) {
+            return res.status(400).json({
+                ok: 'false',
+                msg: 'Usuarios de google no pueden cabiar su correo'
+            });
+        }
+        console.log('pero salio');
+
         const actualizarUsuario = await Usuario.findByIdAndUpdate(uid, campos, { new: true });
 
         res.json({
@@ -119,7 +130,7 @@ const borrarUsuario = async(req, res = response) => {
 
     try {
 
-        const buscarUsuario = Usuario.findById(uid);
+        const buscarUsuario = await Usuario.findById(uid);
 
         if (!buscarUsuario) {
             return res.status(404).json({
@@ -128,7 +139,14 @@ const borrarUsuario = async(req, res = response) => {
             });
         }
 
-        await Usuario.findByIdAndDelete(uid);
+        if (buscarUsuario.id === uid) {
+            return res.status(404).json({
+                ok: 'false',
+                msg: 'No se puede elimiar el usuario Login'
+            });
+        }
+
+        // await Usuario.findByIdAndDelete(uid);
 
         res.json({
             ok: 'true',
