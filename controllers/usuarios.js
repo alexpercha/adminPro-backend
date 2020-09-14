@@ -107,7 +107,6 @@ const actualizarUsuario = async(req, res = response) => {
                 msg: 'Usuarios de google no pueden cabiar su correo'
             });
         }
-        console.log('pero salio');
 
         const actualizarUsuario = await Usuario.findByIdAndUpdate(uid, campos, { new: true });
 
